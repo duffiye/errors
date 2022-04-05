@@ -1,4 +1,4 @@
-module github.com/pingcap/errors
+module github.com/duffiye/errors
 
 go 1.18
 
