@@ -116,10 +116,10 @@ func (e *Error) Error() string {
 	if e == nil {
 		return "<nil>"
 	}
-	describe := e.codeText
-	if len(describe) == 0 {
-		describe = ErrCodeText(strconv.Itoa(int(e.code)))
-	}
+	// describe := e.codeText
+	// if len(describe) == 0 {
+	// 	describe = ErrCodeText(strconv.Itoa(int(e.code)))
+	// }
 	if e.cause != nil {
 		return fmt.Sprintf("[%s]%s: %s", e.RFCCode(), e.GetMsg(), e.cause.Error())
 	}
@@ -243,13 +243,13 @@ func ErrorNotEqual(err1, err2 error) bool {
 	return !ErrorEqual(err1, err2)
 }
 
-type jsonError struct {
-	// Deprecated field, please use `RFCCode` instead.
-	Class   int    `json:"class"`
-	Code    int    `json:"code"`
-	Msg     string `json:"message"`
-	RFCCode string `json:"rfccode"`
-}
+// type jsonError struct {
+// 	// Deprecated field, please use `RFCCode` instead.
+// 	Class   int    `json:"class"`
+// 	Code    int    `json:"code"`
+// 	Msg     string `json:"message"`
+// 	RFCCode string `json:"rfccode"`
+// }
 
 func (e *Error) Wrap(err error) *Error {
 	if err != nil {
@@ -339,3 +339,17 @@ func Normalize(message string, opts ...NormalizeOption) *Error {
 	}
 	return e
 }
+
+// SuspendStack suspends stack for a exists error.
+// it can be used to suspend follow up Trace do not add stack.
+func SuspendStack(err error) error {
+	if err == nil {
+		return err
+	}
+	return withStack{
+		err,
+		&emptyStack,
+	}
+}
+
+var emptyStack stack

@@ -125,6 +125,34 @@ func HasStack(err error) bool {
 	return GetStackTracer(err) != nil
 }
 
+// Trace just calls AddStack.
+func Trace(err error) error {
+	if err == nil {
+		return nil
+	}
+	return AddStack(err)
+}
+
+// Annotate adds a message and ensures there is a stack trace.
+func Annotate(err error, message string) error {
+	if err == nil {
+		return nil
+	}
+	hasStack := HasStack(err)
+	err = &withMessage{
+		cause:         err,
+		msg:           message,
+		causeHasStack: hasStack,
+	}
+	if hasStack {
+		return err
+	}
+	return &withStack{
+		err,
+		callers(),
+	}
+}
+
 // fundamental is an error that has a message and a stack, but no caller.
 type fundamental struct {
 	msg string
